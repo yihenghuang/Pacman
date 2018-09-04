@@ -23,7 +23,20 @@ def shopSmart(orderList, fruitShops):
         fruitShops: List of FruitShops
     """    
     "*** YOUR CODE HERE ***"
-    return None
+    cost1 = 0.0
+    cost2 = 0.0
+    for i in orders:
+      name = i[0]
+      price = dir1[name]
+      cost1 += price * i[1]
+    for i in orders: 
+      name = i[0]
+      price = dir2[name]
+      cost2 += price * i[1]
+    if cost1>cost2:
+      return shop2
+    else:
+      return shop1
     
 if __name__ == '__main__':
   "This code runs when you invoke the script from the command line"
