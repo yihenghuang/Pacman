@@ -25,18 +25,20 @@ def shopSmart(orderList, fruitShops):
     "*** YOUR CODE HERE ***"
     cost1 = 0.0
     cost2 = 0.0
-    for i in orderList:
+    cost1 = fruitShops[0].getPriceOfOrder(orderList)
+    cost2 = fruitShops[1].getPriceOfOrder(orderList)
+    '''for i in orderList:
       name = i[0]
       price = fruitShops[0].getCostPerPound(name)
       cost1 += price * i[1]
     for i in orderList: 
       name = i[0]
       price = fruitShops[1].getCostPerPound(name)
-      cost2 += price * i[1]
+      cost2 += price * i[1]'''
     if cost1>cost2:
-      return fruitShops[0]
-    else:
       return fruitShops[1]
+    else:
+      return fruitShops[0]
     
 if __name__ == '__main__':
   "This code runs when you invoke the script from the command line"
