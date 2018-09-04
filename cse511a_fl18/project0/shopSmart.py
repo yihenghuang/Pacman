@@ -27,11 +27,11 @@ def shopSmart(orderList, fruitShops):
     cost2 = 0.0
     for i in ordersList:
       name = i[0]
-      price = fruitShops.shop1[name]
+      price = fruitShops.[0][name]
       cost1 += price * i[1]
     for i in ordersList: 
       name = i[0]
-      price = fruitShops.shop2[name]
+      price = fruitShops.[1][name]
       cost2 += price * i[1]
     if cost1>cost2:
       return shop2
