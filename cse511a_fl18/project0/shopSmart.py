@@ -25,11 +25,11 @@ def shopSmart(orderList, fruitShops):
     "*** YOUR CODE HERE ***"
     cost1 = 0.0
     cost2 = 0.0
-    for i in ordersList:
+    for i in orderList:
       name = i[0]
       price = fruitShops[0].getCostPerPound(name)
       cost1 += price * i[1]
-    for i in ordersList: 
+    for i in orderList: 
       name = i[0]
       price = fruitShops[1].getCostPerPound(name)
       cost2 += price * i[1]
