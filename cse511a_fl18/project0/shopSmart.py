@@ -34,9 +34,9 @@ def shopSmart(orderList, fruitShops):
       price = fruitShops[1].getCostPerPound(name)
       cost2 += price * i[1]
     if cost1>cost2:
-      return shop2
+      return fruitShops[0]
     else:
-      return shop1
+      return fruitShops[1]
     
 if __name__ == '__main__':
   "This code runs when you invoke the script from the command line"
