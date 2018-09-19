@@ -84,6 +84,20 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    fringe = util.Stack()
+    explored = set()
+    startState = problem.getStartState()
+    fringe.push((startState,[]))
+    while not fringe.isEmpty():
+        cur = fringe.pop()
+        state = cur[0]
+        plan = cur[1]
+        if problem.isGoalState(state):
+            return list(plan)
+        explored.add(state)
+        for i in problem.getSuccessors(state):
+            if i[0] not in explored and i[0] not in fringe.list:
+                fringe.push((i[0], plan+[i[1]]))
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
@@ -92,6 +106,7 @@ def breadthFirstSearch(problem):
     [2nd Edition: p 73, 3rd Edition: p 82]
     """
     "*** YOUR CODE HERE ***"
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
