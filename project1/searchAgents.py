@@ -280,12 +280,18 @@ class CornersProblem(search.SearchProblem):
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "util.raiseNotDefined()"
+        return (self.startingPosition, [])
+
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "util.raiseNotDefined()"
+        
+        visited_corner=state[1]
+        return len(visited_corner)==4
+
 
     def getSuccessors(self, state):
         """
@@ -309,6 +315,19 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            
+            x,y = state[0]
+            visited_corner = list(state[1])
+            dx,dy = Actions.directionToVector(action)
+            nextx, nexty = int(x+dx), int(y+dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                nextState = (nextx, nexty)
+                if nextState in self.corners :
+                    if nextState not in visited_corner:
+                        visited_corner.append(nextState)
+                successors.append(((nextState, visited_corner), action, 1))
+
 
         self._expanded += 1
         return successors
@@ -344,7 +363,33 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    currentPosition = state[0]
+    visited_corner = list(state[1])
+    man_unvisited = []
+    maxValue = 99999
+    global man_value
+    for unvisited in corners:
+        if unvisited not in visited_corner:
+            man_unvisited.append(unvisited)
+    if len(man_unvisited)>0:
+        return findMan(currentPosition, man_unvisited)
+    else:
+        return 0
+
+def findMan( position, togo):
+    
+    if len(togo) == 1:
+        return util.manhattanDistance(position, togo[0])
+    else :
+        res = []
+        for u in togo:
+            t = togo
+            t.remove(u)
+            distance = util.manhattanDistance(position, u) + findMan(u, t)
+            res.append(distance)
+
+        return min(res)
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -435,7 +480,9 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    
+    
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -463,7 +510,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        " util.raiseNotDefined()"
+	return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -499,7 +547,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        " util.raiseNotDefined()"
+        return self.food[x][y]
 
 ##################
 # Mini-contest 1 #
@@ -538,3 +587,4 @@ def mazeDistance(point1, point2, gameState):
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False)
     return len(search.bfs(prob))
+
