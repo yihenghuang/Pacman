@@ -113,6 +113,7 @@ def breadthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     "util.raiseNotDefined()"
+    
     node = problem.getStartState()
     if problem.isGoalState(node):
         return []
@@ -152,6 +153,8 @@ def uniformCostSearch(problem):
     explored = []
     while frontier.isEmpty() == False:
         node, actions = frontier.pop()
+        if node in explored:
+            continue
         if problem.isGoalState(node):
             return actions
         explored.append(node)
@@ -159,12 +162,9 @@ def uniformCostSearch(problem):
             child = expand[0]
             action = expand[1]
             newAction = list(actions)
-            if not child in ( explored and frontier_n):
-                newAction.append(action)
-                frontier.push((child, newAction), problem.getCostOfActions(newAction))
-                frontier_n.append(child)
-            elif ((child in frontier_n) and (problem.getCostOfActions(newAction.append(action)) > problem.getCostOfActions(actions))):
-                node = child
+            newAction.append(action)
+            frontier.push((child, newAction), problem.getCostOfActions(newAction))
+            frontier_n.append(child)
     return actions
 
 
@@ -191,15 +191,17 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         node, actions = frontier.pop()
         if problem.isGoalState(node):
             return actions
+        if node in explored:
+            continue
         explored.append(node)
         for expand in problem.getSuccessors(node):
             child = expand[0]
             action = expand[1]
             newAction = list(actions)
-            if not child in ( explored and frontier_n):
-                newAction.append(action)
-                frontier.push((child, newAction), problem.getCostOfActions(newAction)+heuristic(child, problem))
-                frontier_n.append(child)
+            newAction.append(action)
+            frontier.push((child, newAction), problem.getCostOfActions(newAction)+heuristic(child, problem))
+            frontier_n.append(child)
+            
     return actions
 
 
@@ -208,4 +210,3 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
-
