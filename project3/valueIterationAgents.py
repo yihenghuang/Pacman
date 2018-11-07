@@ -77,6 +77,7 @@ class ValueIterationAgent(ValueEstimationAgent):
       terminal state, you should return None.
     """
     "*** YOUR CODE HERE ***"
+    
     policies = util.Counter()
     for action in self.mdp.getPossibleActions(state):
       policies[action] = self.getQValue(state, action)
