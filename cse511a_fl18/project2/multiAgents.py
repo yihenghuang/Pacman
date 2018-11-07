@@ -34,7 +34,6 @@ class ReflexAgent(Agent):
     """
     # Collect legal moves and successor states
     legalMoves = gameState.getLegalActions()
-
     # Choose one of the best actions
     scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
     bestScore = max(scores)
@@ -42,6 +41,7 @@ class ReflexAgent(Agent):
     chosenIndex = random.choice(bestIndices) # Pick randomly among the best
 
     "Add more of your code here if you want to"
+    
 
     return legalMoves[chosenIndex]
 
@@ -68,7 +68,26 @@ class ReflexAgent(Agent):
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
     "*** YOUR CODE HERE ***"
-    return successorGameState.getScore()
+    x,y = newPos
+    curFood = currentGameState.getFood()
+    score = 10000000
+    for i in range(0, len(list(curFood))):
+      for j in range(0, len(list(curFood[i]))):
+        if curFood[i][j] == True:
+          tmpScore = abs(x-i) + abs(y-j)
+          if tmpScore < score:
+            score = tmpScore
+    
+
+    for gh in newGhostStates:
+      gx, gy = gh.getPosition()
+      dis = abs(gx-x) + abs(gy-y)
+      if dis <= 2 and gh.scaredTimer==0 :
+        score = 10000000
+
+
+    return -1*score
+
 
 def scoreEvaluationFunction(currentGameState):
   """
@@ -126,7 +145,67 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns the total number of agents in the game
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    action = self.value(gameState, 0, 0).keys()[0]
+    return action
+
+  def value(self, gameState, agentIndex, depthNum):
+    if agentIndex == 0 and depthNum ==0:
+      return self.max_value(gameState, agentIndex, depthNum+1)
+    
+    if depthNum == self.depth and agentIndex == gameState.getNumAgents()-1:
+      return self.evaluationFunction(gameState)
+    
+    agentIndex += 1
+    if agentIndex == gameState.getNumAgents():
+      agentIndex = 0
+    if agentIndex != 0:
+      return self.min_value(gameState, agentIndex, depthNum)
+    else :
+      return self.max_value(gameState, agentIndex, depthNum+1)
+
+  def max_value( self, gameState, agentIndex, depthNum):
+    v = -10000000
+    vdict = {}
+    allActions = gameState.getLegalActions(agentIndex)
+    if Directions.STOP in allActions:
+      allActions.remove(Directions.STOP)
+    if not allActions:
+      return self.evaluationFunction(gameState)
+    for action in allActions:
+      varList = self.value(gameState.generateSuccessor(agentIndex, action), agentIndex, depthNum)
+      if type(varList) is int:
+        if v < varList:
+          v = varList
+          vdict = {action : v}
+      else:
+        #print(varList)
+        if v < varList.values()[0]:
+          v = varList.values()[0]
+          vdict = {action : v}
+    return vdict
+
+  def min_value( self, gameState, agentIndex, depthNum):
+    v = 10000000
+    vdict = {}
+    allActions = gameState.getLegalActions(agentIndex)
+    if Directions.STOP in allActions:
+      allActions.remove(Directions.STOP)
+    if not allActions:
+      return self.evaluationFunction(gameState)
+    for action in allActions:
+      varList = self.value(gameState.generateSuccessor(agentIndex, action), agentIndex, depthNum)
+      if type(varList) is int:
+        if v > varList:
+          v = varList
+          vdict = {action : v}
+      else:
+        #print(varList)
+        if v > varList.values()[0]:
+          v = varList.values()[0]
+          vdict = {action : v}
+    return vdict
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
@@ -138,7 +217,69 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Returns the minimax action using self.depth and self.evaluationFunction
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    action = self.value(gameState, 0, 0, -10000000, 10000000).keys()[0]
+    return action
+
+  def value(self, gameState, agentIndex, depthNum, a, b):
+    if agentIndex == 0 and depthNum ==0:
+      return self.max_value(gameState, agentIndex, depthNum+1, a, b)
+    
+    if depthNum == self.depth and agentIndex == gameState.getNumAgents()-1:
+      return self.evaluationFunction(gameState)
+    
+    agentIndex += 1
+    if agentIndex == gameState.getNumAgents():
+      agentIndex = 0
+    if agentIndex != 0:
+      return self.min_value(gameState, agentIndex, depthNum, a, b)
+    else :
+      return self.max_value(gameState, agentIndex, depthNum+1, a, b)
+
+  def max_value( self, gameState, agentIndex, depthNum, a, b):
+    v = -10000000
+    vdict = {}
+    allActions = gameState.getLegalActions(agentIndex)
+    if Directions.STOP in allActions:
+      allActions.remove(Directions.STOP)
+    if not allActions:
+      return self.evaluationFunction(gameState)
+    for action in allActions:
+      varList = self.value(gameState.generateSuccessor(agentIndex, action), agentIndex, depthNum, a, b)
+      if type(varList) is int:
+        if v < varList:
+          v = varList
+          vdict = {action : v}
+      else:
+        #print(varList)
+        if v < varList.values()[0]:
+          v = varList.values()[0]
+          vdict = {action : v}
+    return vdict
+
+  def min_value( self, gameState, agentIndex, depthNum, a, b):
+    v = 10000000
+    vdict = {}
+    allActions = gameState.getLegalActions(agentIndex)
+    if Directions.STOP in allActions:
+      allActions.remove(Directions.STOP)
+    if not allActions:
+      return self.evaluationFunction(gameState)
+    for action in allActions:
+      varList = self.value(gameState.generateSuccessor(agentIndex, action), agentIndex, depthNum, a, b)
+      if type(varList) is int:
+        if v > varList:
+          v = varList
+          vdict = {action: v}
+      else:
+        #print(varList)
+        if v > varList.values()[0]:
+          v = varList.values()[0]
+          vdict = {action: v}
+      if v >= b :
+        return vdict
+      a = max(a, v)
+    return vdict
+    
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
   """
@@ -153,7 +294,67 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       legal moves.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    action = self.value(gameState, 0, 0).keys()[0]
+    return action
+
+  def value(self, gameState, agentIndex, depthNum):
+    if agentIndex == 0 and depthNum ==0:
+      return self.max_value(gameState, agentIndex, depthNum+1)
+    
+    if depthNum == self.depth and agentIndex == gameState.getNumAgents()-1:
+      return self.evaluationFunction(gameState)
+    
+    agentIndex += 1
+    if agentIndex == gameState.getNumAgents():
+      agentIndex = 0
+    if agentIndex != 0:
+      return self.exp_value(gameState, agentIndex, depthNum)
+    else :
+      return self.max_value(gameState, agentIndex, depthNum+1)
+
+  def max_value( self, gameState, agentIndex, depthNum):
+    v = -float('inf')
+    vdict = {}
+    allActions = gameState.getLegalActions(agentIndex)
+    if Directions.STOP in allActions:
+      allActions.remove(Directions.STOP)
+    if not allActions:
+      return self.evaluationFunction(gameState)
+    for action in allActions:
+      varList = self.value(gameState.generateSuccessor(agentIndex, action), agentIndex, depthNum)
+      if type(varList) is int or type(varList) is float:
+        if v < varList:
+          v = varList
+          vdict = {action: v}
+      else:
+        #print(varList)
+        if v < varList.values()[0]:
+          v = varList.values()[0]
+          vdict = {action : v}
+    return vdict
+
+  def exp_value( self, gameState, agentIndex, depthNum):
+    v = 0
+    vdict = {}
+    allActions = gameState.getLegalActions(agentIndex)
+    if Directions.STOP in allActions:
+      allActions.remove(Directions.STOP)
+    if not allActions:
+      return self.evaluationFunction(gameState)
+    p = 1.0/len(allActions)
+    for action in allActions:
+      varList = self.value(gameState.generateSuccessor(agentIndex, action), agentIndex, depthNum)
+      #print(varList)
+      #print(depthNum, agentIndex)
+      if type(varList) is int or type(varList) is float:
+        v = v+ p*varList
+        vdict = {action: v}
+      else:
+        #print(varList)
+        v = v+ p*varList.values()[0]
+        vdict = {action: v}
+    return vdict
+    
 
 def betterEvaluationFunction(currentGameState):
   """
@@ -163,7 +364,31 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+
+  if currentGameState.isWin():
+    return 10000000
+  if currentGameState.isLose():
+    return -10000000
+  curFood = currentGameState.getFood().asList()  
+  ghostStates = currentGameState.getGhostStates() 
+  capPos = currentGameState.getCapsules()  
+  curPos = list(currentGameState.getPacmanPosition())
+  score=[]
+  capScore=[]
+
+  for food in curFood:
+    dis = manhattanDistance(food, curPos)
+    score.append(dis)
+  score.sort()
+  for cap in capPos:
+    dis = manhattanDistance(cap, curPos)
+    capScore.append(dis)
+  capScore.sort()
+  #print(capScore)
+  if len(capScore)>1:
+    #print("yes")
+    return currentGameState.getScore() - capScore[0]*200
+  return currentGameState.getScore() - score[0]
 
 # Abbreviation
 better = betterEvaluationFunction
