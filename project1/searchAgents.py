@@ -158,17 +158,16 @@ class PositionSearchProblem(search.SearchProblem):
 
     def isGoalState(self, state):
         isGoal = state == self.goal
-
+        return isGoal
         # For display purposes only
+    """
         if isGoal:
             self._visitedlist.append(state)
             import __main__
             if '_display' in dir(__main__):
                 if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
                     __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
-
-        return isGoal
-
+    """
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -289,7 +288,10 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         "util.raiseNotDefined()"
         
-        visited_corner=state[1]
+        node, visited_corner=state
+        if node in self.corners:
+            if node not in visited_corner:
+                visited_corner.append(node)
         return len(visited_corner)==4
 
 
@@ -366,28 +368,25 @@ def cornersHeuristic(state, problem):
     currentPosition = state[0]
     visited_corner = list(state[1])
     man_unvisited = []
-    maxValue = 99999
-    global man_value
+    if problem.isGoalState(state):
+        return 0
     for unvisited in corners:
         if unvisited not in visited_corner:
             man_unvisited.append(unvisited)
-    if len(man_unvisited)>0:
-        return findMan(currentPosition, man_unvisited)
-    else:
-        return 0
+
+    return findMan(currentPosition, man_unvisited)
 
 def findMan( position, togo):
     
-    if len(togo) == 1:
-        return util.manhattanDistance(position, togo[0])
+    if len(togo) == 0:
+        return 0
     else :
         res = []
         for u in togo:
-            t = togo
+            t = list(togo)
             t.remove(u)
             distance = util.manhattanDistance(position, u) + findMan(u, t)
             res.append(distance)
-
         return min(res)
 
 
@@ -480,9 +479,46 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    
-    
-
+    food_coordinates = foodGrid.asList()
+    res = 0
+    for f in food_coordinates:
+        dist = mazeDistance(position, f, problem.startingGameState)
+        res = max(res,dist)
+    return res
+"""
+    x,y = position
+    xs,ys = problem.getStartState()
+    res = 0
+    pfood = []
+    far = position
+    for f in list(foodGrid.asList()):
+        distance= util.manhattanDistance(position, f)
+        if distance>res:
+            res = distance
+            far = f
+        if (f[0]>xs and f[0]>x) or (f[0]<xs and f[0]<x) or (f[1]>ys and f[1]>y) or (f[1]>ys and f[1]>y):
+            pfood.append(f)
+    hor = far[0]-x
+    ver = far[0]-y
+    count = 0
+    for f in list(pfood):
+        fh = f[0]-x
+        fv = f[1]-y
+        if hor > 0 and fh < 0:
+            count+=1
+        if hor < 0 and fh > 0:
+            count+=1
+        if hor == 0 and fh != 0:
+            count+=1
+        if ver > 0 and fv <0:
+            count+=1
+        if ver < 0 and fv > 0:
+            count +=1
+        if ver==0 and fv != 0:
+            count+=1
+ 
+    return res+count
+"""
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -510,8 +546,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        " util.raiseNotDefined()"
-	return search.uniformCostSearch(problem)
+        return search.uniformCostSearch(problem)
+        util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -547,8 +583,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        " util.raiseNotDefined()"
         return self.food[x][y]
+        util.raiseNotDefined()
 
 ##################
 # Mini-contest 1 #
@@ -587,4 +623,3 @@ def mazeDistance(point1, point2, gameState):
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False)
     return len(search.bfs(prob))
-
