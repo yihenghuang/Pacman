@@ -130,15 +130,17 @@ class ExactInference(InferenceModule):
     # Replace this code with a correct observation update
     # Be sure to handle the jail.
     allPossible = util.Counter()
-    for p in self.legalPositions:
-      trueDistance = util.manhattanDistance(p, pacmanPosition)
+
+    if noisyDistance == None:
+        #self.setGhostPosition(gameState,self.getJailPosition())
+        allPossible[self.getJailPosition()] = 1.0
+
+    for position in self.legalPositions:
+      trueDistance = util.manhattanDistance(position, pacmanPosition)
       if emissionModel[trueDistance] > 0: 
       	#allPossible[p] = 1.0
-      	allPossible[p] = emissionModel[trueDistance]*self.beliefs[p]
-      	
-    if noisyDistance == None:
-        self.setGhostPosition(gameState,self.getJailPosition())
-        allPossible[self.getJailPosition()] = 1.0
+      	allPossible[position] = self.beliefs[position]*emissionModel[trueDistance]
+
 
     allPossible.normalize()
         
