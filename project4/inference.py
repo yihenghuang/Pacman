@@ -132,13 +132,11 @@ class ExactInference(InferenceModule):
     allPossible = util.Counter()
 
     if noisyDistance == None:
-        #self.setGhostPosition(gameState,self.getJailPosition())
         allPossible[self.getJailPosition()] = 1.0
 
     for position in self.legalPositions:
       trueDistance = util.manhattanDistance(position, pacmanPosition)
       if emissionModel[trueDistance] > 0: 
-      	#allPossible[p] = 1.0
       	allPossible[position] = self.beliefs[position]*emissionModel[trueDistance]
 
 
@@ -191,6 +189,14 @@ class ExactInference(InferenceModule):
     """
     
     "*** YOUR CODE HERE ***"
+    allPossible = util.Counter()
+    for old in self.legalPositions:
+		new = self.getPositionDistribution(self.setGhostPosition(gameState, old))
+		for newp, p in new.items():
+			allPossible[newp] += p*self.beliefs[old]
+    #allPossible.normalize() 
+    self.beliefs = allPossible  
+
 
   def getBeliefDistribution(self):
     return self.beliefs
