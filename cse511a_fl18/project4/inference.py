@@ -190,10 +190,10 @@ class ExactInference(InferenceModule):
     
     "*** YOUR CODE HERE ***"
     allPossible = util.Counter()
-    for old in self.legalPositions:
-		new = self.getPositionDistribution(self.setGhostPosition(gameState, old))
-		for newp, p in new.items():
-			allPossible[newp] += p*self.beliefs[old]
+    for oldPos in self.legalPositions:
+    	newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, oldPos))
+		for newPos, prob in newPosDist.items():
+			allPossible[newPos] += prob*self.beliefs[oldPos]
     #allPossible.normalize() 
     self.beliefs = allPossible  
 
