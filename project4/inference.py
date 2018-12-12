@@ -222,6 +222,9 @@ class ParticleFilter(InferenceModule):
   def initializeUniformly(self, gameState):
     "Initializes a list of particles. Use self.numParticles for the number of particles"
     "*** YOUR CODE HERE ***"
+    self.particles = []
+    for i in range(self.numParticles):
+      self.particles.append(random.choice(self.legalPositions))
   
   def observe(self, observation, gameState):
     """
@@ -248,8 +251,23 @@ class ParticleFilter(InferenceModule):
     emissionModel = busters.getObservationDistribution(noisyDistance)
     pacmanPosition = gameState.getPacmanPosition()
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-    
+
+    if noisyDistance == None:
+      for i in range(self.numParticles):
+        self.particles[i] = self.getJailPosition()
+    else:
+      allPossible = util.Counter()
+      for i in self.particles:
+        trueDist = util.manhattanDistance(i, pacmanPosition)
+        allPossible[i] = allPossible[i]+emissionModel[trueDist]
+      if allPossible.totalCount() == 0:
+        self.initializeUniformly(gameState)
+      else:
+        for i in range(self.numParticles):
+          self.particles[i] = util.sample(allPossible)
+        allPossible = util.Counter()
+
+
   def elapseTime(self, gameState):
     """
     Update beliefs for a time step elapsing.
@@ -263,7 +281,15 @@ class ParticleFilter(InferenceModule):
     position.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    for x in range(self.numParticles): 
+      self.particles[x] = util.sample(self.getPositionDistribution(self.setGhostPosition(gameState, self.particles[x])))
+    """
+    newPos = util.Counter()
+    for x in range(self.numParticles):
+      particle = self.particles[x]
+      newPos[particle] = self.getPositionDistribution(self.setGhostPosition(gameState, particle))
+      self.particles[x] = util.sample(newPos[particle])
 
   def getBeliefDistribution(self):
     """
@@ -271,7 +297,11 @@ class ParticleFilter(InferenceModule):
     ghost locations conditioned on all evidence and time passage.
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    distr = util.Counter()
+    for particle in self.particles:
+        distr[particle] += 1
+    distr.normalize()
+    return distr
 
 class MarginalInference(InferenceModule):
   "A wrapper around the JointInference module that returns marginal beliefs about ghosts."
@@ -316,7 +346,8 @@ class JointParticleFilter:
   def initializeParticles(self):
     "Initializes particles randomly.  Each particle is a tuple of ghost positions. Use self.numParticles for the number of particles"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    
 
   def addGhostAgent(self, agent):
     "Each ghost agent is registered separately and stored (in case they are different)."
