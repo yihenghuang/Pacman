@@ -130,16 +130,12 @@ class ExactInference(InferenceModule):
     # Replace this code with a correct observation update
     # Be sure to handle the jail.
     allPossible = util.Counter()
-
     if noisyDistance == None:
-        allPossible[self.getJailPosition()] = 1.0
-
-    for position in self.legalPositions:
-      trueDistance = util.manhattanDistance(position, pacmanPosition)
-      if emissionModel[trueDistance] > 0: 
-      	allPossible[position] = self.beliefs[position]*emissionModel[trueDistance]
-
-
+      allPossible[self.getJailPosition()]=1.0
+    else:
+      for p in self.legalPositions:
+        trueDistance = util.manhattanDistance(p, pacmanPosition)
+        allPossible[p] = self.beliefs[p] * emissionModel[trueDistance]
     allPossible.normalize()
         
     "*** YOUR CODE HERE ***"
@@ -191,11 +187,10 @@ class ExactInference(InferenceModule):
     "*** YOUR CODE HERE ***"
     allPossible = util.Counter()
     for oldPos in self.legalPositions:
-    	newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, oldPos))
-    	for newPos, prob in newPosDist.items():
-    		allPossible[newPos] += prob*self.beliefs[oldPos]
-    #allPossible.normalize() 
-    self.beliefs = allPossible  
+      newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, oldPos))
+      for newPos, prob in newPosDist.items():
+        allPossible[newPos] += prob*self.beliefs[oldPos]
+    self.beliefs = allPossible
 
 
   def getBeliefDistribution(self):
@@ -445,17 +440,16 @@ class JointParticleFilter:
 
     weights = util.Counter()
     for p in self.particles:
-      t = 1
-      # update beliefs by multiplying probs of all ghosts
+      wt = 1
       for i in range(self.numGhosts):
         trueDist = util.manhattanDistance(p[i], pacmanPosition)
-        t *= emissionModels[i][trueDist]
-      weights[p] += t
-      
+        wt *= emissionModels[i][trueDist]
+      weights[p] += wt
+    
     if weights.totalCount() == 0:
       self.initializeParticles()
       for i in range(self.numGhosts):
-        if noisyDistances[i] is None:
+        if noisyDistances[i] == None:
           for j in range(self.numParticles):
             particle = list(self.particles[j])
             particle[i] = self.getJailPosition(i)
