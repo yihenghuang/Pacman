@@ -347,11 +347,6 @@ class JointParticleFilter:
     "Initializes particles randomly.  Each particle is a tuple of ghost positions. Use self.numParticles for the number of particles"
     "*** YOUR CODE HERE ***"
 
-    # randomlegal = random.choice(self.legalPositions)
-    # numg = self.numGhosts
-    # nump = self.numParticles
-    # self.particles = [tuple(randomlegal for i in range(numg)) for j in range(nump)]
-    
     self.particles = [tuple(random.choice(self.legalPositions) for i in range(self.numGhosts)) for j in range(self.numParticles)]
 
   def addGhostAgent(self, agent):
@@ -440,6 +435,32 @@ class JointParticleFilter:
     emissionModels = [busters.getObservationDistribution(dist) for dist in noisyDistances]
 
     "*** YOUR CODE HERE ***"
+    for i in range(self.numGhosts):
+      if noisyDistances[i] is None:
+        for j in range(self.numParticles):
+          particle = list(self.particles[j])
+          particle[i] = self.getJailPosition(i)
+          self.particles[j] = tuple(particle)
+        return None
+
+    weights = util.Counter()
+    for p in self.particles:
+      t = 1
+      # update beliefs by multiplying probs of all ghosts
+      for i in range(self.numGhosts):
+        trueDist = util.manhattanDistance(p[i], pacmanPosition)
+        t *= emissionModels[i][trueDist]
+      weights[p] += t
+      
+    if weights.totalCount() == 0:
+      self.initializeParticles()
+    else:
+      weights.normalize()
+      for i in range(self.numParticles):
+        newLocation = util.sample(weights)
+        self.particles[i] = newLocation
+  
+
   
   def getBeliefDistribution(self):
     dist = util.Counter()
