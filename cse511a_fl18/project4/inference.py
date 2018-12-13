@@ -436,7 +436,7 @@ class JointParticleFilter:
 
     "*** YOUR CODE HERE ***"
     for i in range(self.numGhosts):
-      if noisyDistances[i] is None:
+      if noisyDistances[i] == None:
         for j in range(self.numParticles):
           particle = list(self.particles[j])
           particle[i] = self.getJailPosition(i)
@@ -454,6 +454,13 @@ class JointParticleFilter:
       
     if weights.totalCount() == 0:
       self.initializeParticles()
+      for i in range(self.numGhosts):
+        if noisyDistances[i] is None:
+          for j in range(self.numParticles):
+            particle = list(self.particles[j])
+            particle[i] = self.getJailPosition(i)
+            self.particles[j] = tuple(particle)
+      return None
     else:
       weights.normalize()
       for i in range(self.numParticles):
